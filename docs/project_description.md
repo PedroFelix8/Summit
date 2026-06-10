@@ -1,31 +1,72 @@
-# Aplicación deportiva móvil
+# Sport Tracker
 
-## Objetivo
+Mobile application for amateur and semi-professional athletes to record, analyze and track their sports performance.
 
-Desarrollar una aplicación móvil multiplataforma orientada a deportistas amateur.
+This project is developed as a Final Degree Project (TFG).
 
-La aplicación permitirá registrar entrenamientos, consultar estadísticas e importar actividades deportivas mediante la API de Strava.
+## Project Goal
 
-## Problema
+The goal of this project is to develop a cross-platform mobile application focused on sports activity tracking.
 
-Actualmente existen plataformas deportivas muy completas pero con dependencia de servicios online.
+The application aims to provide:
 
-Este proyecto propone una solución MVP centrada en:
-- bajo coste
-- almacenamiento local
-- simplicidad
-- escalabilidad futura
+- Training registration
+- Performance statistics
+- Activity history
+- Personal progress tracking
+- Integration with Strava API
 
-## Tecnologías
+## Main Features
 
-Frontend:
-Flutter + Dart
+### MVP
 
-Base de datos:
-SQLite
+- User profile
+- Manual training registration
+- Training history
+- Basic statistics
+- Local data persistence
+- Strava integration
 
-Control de versiones:
-GitHub
+## Technology Stack
 
-API externa:
-Strava API
+### Mobile
+
+- Flutter
+- Dart
+
+### Database
+
+- SQLite
+
+### External Services
+
+- Strava API
+
+### Version Control
+
+- GitHub
+
+## Architecture Overview
+
+The application follows a layered architecture:
+
+Flutter UI
+
+↓
+
+Repositories
+
+↓
+
+Local Database / External APIs
+
+## Project Status
+
+Currently under development.
+
+## Future Improvements
+
+- Cloud synchronization
+- Social features
+- Advanced analytics
+- User authentication

@@ -14,13 +14,16 @@ The project uses a simplified Git workflow.
 
 ## Main Branch
 
-Branch: 
+Branch:
+
+```bash
 main
+```
 
 Purpose:
 
 - Contains stable versions of the project.
-- Only includes tested and working code.
+- Includes tested and working code.
 - Represents the release version.
 
 ---
@@ -30,68 +33,114 @@ Purpose:
 New features are developed using separate branches.
 
 Naming convention:
-feature/<feature-name>
+
+```bash
+feature/feature-name
+```
 
 Examples:
+
+```bash
 feature/user-profile
 feature/sqlite-database
 feature/strava-integration
-
+```
 
 Workflow:
 
-1. Create a feature branch from main.
+1. Create a feature branch from `main`.
 2. Develop the functionality.
 3. Test the changes.
-4. Merge into main.
+4. Merge into `main`.
+
+---
+
+## Direct commits
+
+Small documentation changes or minor fixes may be committed directly to the main branch when creating a separate branch would add unnecessary overhead.
+
+Examples:
+
+- Typo corrections
+- Markdown formatting fixes
+- Documentation improvements
 
 ---
 
 ## Bug Fix Branches
 
 Bug fixes use:
-bugfix/<bug-name>
+
+```bash
+bugfix/bug-name
+```
 
 Examples:
+
+```bash
 bugfix/database-error
 bugfix/login-crash
-
+```
 
 ---
 
 # Commit Convention
 
-Commits should be short and descriptive.
+Commits should be short, clear and descriptive.
 
 Format:
-type: description
 
+```bash
+type: description
+```
 
 ## Commit Types
 
 ### feature
 
-New functionality.
+Used for new functionality.
 
 Example:
-feature: correct activity database query
 
+```bash
+feature: add training registration form
+```
+
+---
+
+### fix
+
+Used for bug corrections.
+
+Example:
+
+```bash
+fix: correct activity database query
+```
+
+---
 
 ### docs
 
-Documentation changes.
+Used for documentation changes.
 
 Example:
-docs: update architecture documentation
 
+```bash
+docs: update architecture documentation
+```
+
+---
 
 ### refactor
 
-Code restructuring.
+Used for code restructuring without adding new functionality.
 
 Example:
-refactor repository structure
 
+```bash
+refactor: improve repository structure
+```
 
 ---
 
@@ -102,7 +151,7 @@ All tasks are managed through GitHub Issues.
 Each issue should include:
 
 - Description
-- Objective
+- Tasks
 - Acceptance criteria
 - Related milestone
 - Appropriate labels
@@ -111,50 +160,105 @@ Each issue should include:
 
 ## Issue Lifecycle
 
-1. Issue created
+### Backlog
 
-Status:
+The issue has been created but work has not started.
+
+```text
 Backlog
+```
 
+---
 
-2. Work starts
+### In Progress
 
-Status:
-In progress
+Development has started.
 
+```text
+In Progress
+```
 
-3. Task completed
+---
 
-Status:
+### Review
+
+The task has been completed and is being checked.
+
+```text
 Review
+```
 
+---
 
-4. Verified
+### Done
 
-Status:
+The task has been verified and completed.
+
+```text
 Done
-
+```
 
 ---
 
 # Pull Requests
 
-Changes should be reviewed before merging.
+Changes should be reviewed before being merged.
 
-For this project, pull requests will be used when:
+Pull requests will be used for:
 
-- A feature is completed.
-- A significant change is introduced.
+- Completed features.
+- Important changes.
+- Code review before merging into `main`.
 
 ---
 
-# Version Tags
+# Versioning
 
-Releases will use semantic versioning.
+The project uses semantic versioning.
 
 Format:
-v<major>.<minor>.<patch>
+
+```text
+vX.Y.Z
+```
+
+Where:
+
+- `X` represents major changes.
+- `Y` represents new features.
+- `Z` represents bug fixes or small improvements.
 
 Examples:
+
+```text
 v0.1.0
 v1.0.0
+```
+
+---
+
+# Development Workflow
+
+The general workflow is:
+
+```text
+Create Issue
+      |
+      v
+Create Branch
+      |
+      v
+Develop Feature
+      |
+      v
+Test Changes
+      |
+      v
+Commit Changes
+      |
+      v
+Merge into main
+      |
+      v
+Close Issue
+```
