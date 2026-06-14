@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../shared/widgets/big_metric.dart';
-import '../../shared/widgets/gradient_card.dart';
-import '../../shared/widgets/gradient_progress_bar.dart';
 
-/// Translated from the "Hero header" section of S1Home.tsx.
-/// Shows the greeting, user name, and weekly summary card.
+import 'package:summit/core/theme/app_colors.dart';
+import 'package:summit/core/theme/app_text_styles.dart';
+import 'package:summit/shared/widgets/big_metric.dart';
+import 'package:summit/shared/widgets/gradient_card.dart';
+import 'package:summit/shared/widgets/gradient_progress_bar.dart';
+
 class HomeHeroHeader extends StatelessWidget {
   const HomeHeroHeader({
     super.key,
@@ -32,26 +31,21 @@ class HomeHeroHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: AppGradients.hero,
         border: Border(
-          bottom: BorderSide(color: Color(0xFF1E1E1E), width: 1),
+          bottom: BorderSide(color: AppColors.border),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Greeting ───────────────────────────────────────
           Text('Good morning', style: AppTextStyles.greetingSubtitle),
           const SizedBox(height: 2),
           Text(userName, style: AppTextStyles.heroName),
-
           const SizedBox(height: 16),
-
-          // ── Weekly summary card ────────────────────────────
           GradientCard(
             gradient: AppGradients.cardAlt,
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Column(
               children: [
-                // Week label
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -60,8 +54,6 @@ class HomeHeroHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // 3 metrics
                 IntrinsicHeight(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -82,18 +74,12 @@ class HomeHeroHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 12),
                 const Divider(color: AppColors.border, height: 1),
                 const SizedBox(height: 10),
-
-                // Weekly goal progress
                 Row(
                   children: [
-                    Text(
-                      'Weekly goal',
-                      style: AppTextStyles.labelSm,
-                    ),
+                    Text('Weekly goal', style: AppTextStyles.labelSm),
                     const Spacer(),
                     Text(
                       '${weekGoalPercent.toInt()}%',
