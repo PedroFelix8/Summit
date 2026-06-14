@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../presentation/screens/home_screen.dart';
-import '../../presentation/screens/training_history_screen.dart';
-import '../../presentation/screens/statistics_screen.dart';
-import '../../presentation/screens/goals_screen.dart';
-import '../../presentation/screens/profile_screen.dart';
+import 'package:summit/presentation/screens/goals_screen.dart';
+import 'package:summit/presentation/screens/home_screen.dart';
+import 'package:summit/presentation/screens/profile_screen.dart';
+import 'package:summit/presentation/screens/statistics_screen.dart';
+import 'package:summit/presentation/screens/training_history_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/home',
