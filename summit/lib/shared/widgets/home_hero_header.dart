@@ -64,7 +64,7 @@ class HomeHeroHeader extends StatelessWidget {
                         thickness: 1,
                         width: 1,
                       ),
-                      BigMetric(value: totalKm, label: 'km', sub: 'this week'),
+                      BigMetric(value: totalKm, label: 'km'),
                       const VerticalDivider(
                         color: AppColors.border,
                         thickness: 1,
