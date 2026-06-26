@@ -31,6 +31,15 @@ class WorkoutRepository {
   }
 
   Future<int> insertWorkout(WorkoutsCompanion workout) {
+    if (workout.userId.present) {
+      return _insertWorkoutForExistingUser(workout);
+    }
+
+    return _database.into(_database.workouts).insert(workout);
+  }
+
+  Future<int> _insertWorkoutForExistingUser(WorkoutsCompanion workout) async {
+    await _ensureUserExists(workout.userId.value);
     return _database.into(_database.workouts).insert(workout);
   }
 
@@ -104,5 +113,15 @@ class WorkoutRepository {
     return (_database.delete(_database.exerciseSets)
           ..where((table) => table.id.equals(id)))
         .go();
+  }
+
+  Future<void> _ensureUserExists(int userId) async {
+    await _database.into(_database.users).insert(
+          UsersCompanion.insert(
+            id: Value(userId),
+            name: 'Alex',
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
   }
 }

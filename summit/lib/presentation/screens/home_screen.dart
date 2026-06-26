@@ -5,6 +5,8 @@ import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/core/theme/app_text_styles.dart';
 import 'package:summit/data/local/database/app_database.dart';
 import 'package:summit/data/repositories/workout_repository.dart';
+import 'package:summit/presentation/screens/add_workout/add_workout_screen.dart';
+import 'package:summit/presentation/screens/edit_workout/edit_workout_screen.dart';
 import 'package:summit/shared/widgets/gradient_card.dart';
 import 'package:summit/shared/widgets/home_hero_header.dart';
 import 'package:summit/shared/widgets/quick_stat_card.dart';
@@ -20,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final AppDatabase _database;
   late final WorkoutRepository _workoutRepository;
-  late final Future<List<Workout>> _workoutsFuture;
+  late Future<List<Workout>> _workoutsFuture;
 
   @override
   void initState() {
@@ -52,11 +54,48 @@ class _HomeScreenState extends State<HomeScreen> {
               workouts: workouts,
               isLoading: isLoading,
               hasError: snapshot.hasError,
+              onAddWorkout: _openAddWorkout,
+              onEditWorkout: _openEditWorkout,
             );
           },
         ),
       ),
     );
+  }
+
+  Future<void> _openAddWorkout() async {
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddWorkoutScreen(repository: _workoutRepository),
+      ),
+    );
+
+    if (changed == true) {
+      _reloadWorkouts();
+    }
+  }
+
+  Future<void> _openEditWorkout(Workout workout) async {
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditWorkoutScreen(
+          repository: _workoutRepository,
+          workout: workout,
+        ),
+      ),
+    );
+
+    if (changed == true) {
+      _reloadWorkouts();
+    }
+  }
+
+  void _reloadWorkouts() {
+    setState(() {
+      _workoutsFuture = _workoutRepository.getWorkouts();
+    });
   }
 }
 
@@ -65,15 +104,20 @@ class _HomeContent extends StatelessWidget {
     required this.workouts,
     required this.isLoading,
     required this.hasError,
+    required this.onAddWorkout,
+    required this.onEditWorkout,
   });
 
   final List<Workout> workouts;
   final bool isLoading;
   final bool hasError;
+  final VoidCallback onAddWorkout;
+  final ValueChanged<Workout> onEditWorkout;
 
   @override
   Widget build(BuildContext context) {
-    final horizontalPadding = MediaQuery.sizeOf(context).width > 640 ? 32.0 : 20.0;
+    final horizontalPadding =
+        MediaQuery.sizeOf(context).width > 640 ? 32.0 : 20.0;
     final recentWorkouts = workouts.take(5).toList();
     final weeklyWorkouts = workouts.where(_isCurrentWeek).toList();
     final weeklyMinutes = weeklyWorkouts.fold<int>(
@@ -137,7 +181,10 @@ class _HomeContent extends StatelessWidget {
                   horizontalPadding,
                   12,
                 ),
-                child: const _SectionTitle(title: 'Recent Workouts'),
+                child: _SectionHeader(
+                  title: 'Recent Workouts',
+                  onAddWorkout: onAddWorkout,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -150,6 +197,7 @@ class _HomeContent extends StatelessWidget {
                   workouts: recentWorkouts,
                   isLoading: isLoading,
                   hasError: hasError,
+                  onEditWorkout: onEditWorkout,
                 ),
               ),
             ],
@@ -164,7 +212,8 @@ class _HomeContent extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
-    return !workout.date.isBefore(startOfWeek) && workout.date.isBefore(endOfWeek);
+    return !workout.date.isBefore(startOfWeek) &&
+        workout.date.isBefore(endOfWeek);
   }
 
   static String _formatDuration(int minutes) {
@@ -174,7 +223,9 @@ class _HomeContent extends StatelessWidget {
 
     final hours = minutes ~/ 60;
     final remainingMinutes = minutes % 60;
-    return remainingMinutes == 0 ? '${hours}h' : '${hours}h ${remainingMinutes}m';
+    return remainingMinutes == 0
+        ? '${hours}h'
+        : '${hours}h ${remainingMinutes}m';
   }
 }
 
@@ -183,11 +234,13 @@ class _WorkoutSection extends StatelessWidget {
     required this.workouts,
     required this.isLoading,
     required this.hasError,
+    required this.onEditWorkout,
   });
 
   final List<Workout> workouts;
   final bool isLoading;
   final bool hasError;
+  final ValueChanged<Workout> onEditWorkout;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +259,10 @@ class _WorkoutSection extends StatelessWidget {
     return Column(
       children: [
         for (final workout in workouts) ...[
-          WorkoutListItem(entry: _toWorkoutEntry(workout)),
+          WorkoutListItem(
+            entry: _toWorkoutEntry(workout),
+            onTap: () => onEditWorkout(workout),
+          ),
           if (workout != workouts.last) const SizedBox(height: 10),
         ],
       ],
@@ -239,6 +295,31 @@ class _WorkoutSection extends StatelessWidget {
     }
 
     return value[0].toUpperCase() + value.substring(1).toLowerCase();
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.onAddWorkout,
+  });
+
+  final String title;
+  final VoidCallback onAddWorkout;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _SectionTitle(title: title),
+        const Spacer(),
+        TextButton.icon(
+          onPressed: onAddWorkout,
+          icon: const Icon(Icons.add),
+          label: const Text('Add'),
+        ),
+      ],
+    );
   }
 }
 
