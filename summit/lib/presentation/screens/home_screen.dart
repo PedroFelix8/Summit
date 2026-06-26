@@ -6,6 +6,7 @@ import 'package:summit/core/theme/app_text_styles.dart';
 import 'package:summit/data/local/database/app_database.dart';
 import 'package:summit/data/local/database/database_provider.dart';
 import 'package:summit/data/repositories/workout_repository.dart';
+import 'package:summit/data/streams/workout_dashboard_stream.dart';
 import 'package:summit/presentation/screens/add_workout/add_workout_screen.dart';
 import 'package:summit/presentation/screens/edit_workout/edit_workout_screen.dart';
 import 'package:summit/shared/widgets/gradient_card.dart';
@@ -23,14 +24,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final AppDatabase _database;
   late final WorkoutRepository _workoutRepository;
-  late final Stream<List<Workout>> _workoutsStream;
+  late final Stream<WorkoutDashboard> _dashboardStream;
 
   @override
   void initState() {
     super.initState();
     _database = DatabaseProvider.instance;
     _workoutRepository = WorkoutRepository(_database);
-    _workoutsStream = _workoutRepository.watchWorkouts();
+    _dashboardStream = WorkoutDashboardStream(_database).watch();
   }
 
   @override
@@ -38,15 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: StreamBuilder<List<Workout>>(
-          stream: _workoutsStream,
+        child: StreamBuilder<WorkoutDashboard>(
+          stream: _dashboardStream,
           builder: (context, snapshot) {
-            final workouts = snapshot.data ?? const <Workout>[];
+            final dashboard = snapshot.data ?? WorkoutDashboard.empty();
             final isLoading =
                 snapshot.connectionState == ConnectionState.waiting;
 
             return _HomeContent(
-              workouts: workouts,
+              dashboard: dashboard,
               isLoading: isLoading,
               hasError: snapshot.hasError,
               onAddWorkout: _openAddWorkout,
@@ -82,14 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _HomeContent extends StatelessWidget {
   const _HomeContent({
-    required this.workouts,
+    required this.dashboard,
     required this.isLoading,
     required this.hasError,
     required this.onAddWorkout,
     required this.onEditWorkout,
   });
 
-  final List<Workout> workouts;
+  final WorkoutDashboard dashboard;
   final bool isLoading;
   final bool hasError;
   final VoidCallback onAddWorkout;
@@ -99,7 +100,6 @@ class _HomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final horizontalPadding =
         MediaQuery.sizeOf(context).width > 640 ? 32.0 : 20.0;
-    final dashboard = WorkoutDashboard(workouts);
 
     return SingleChildScrollView(
       child: Center(
@@ -131,7 +131,7 @@ class _HomeContent extends StatelessWidget {
                   stats: [
                     QuickStat(
                       icon: Icons.event_available_outlined,
-                      value: workouts.length.toString(),
+                      value: dashboard.workouts.length.toString(),
                       label: 'total',
                     ),
                     QuickStat(
@@ -190,41 +190,6 @@ class _HomeContent extends StatelessWidget {
     return remainingMinutes == 0
         ? '${hours}h'
         : '${hours}h ${remainingMinutes}m';
-  }
-}
-
-class WorkoutDashboard {
-  const WorkoutDashboard(this.workouts);
-
-  final List<Workout> workouts;
-
-  List<Workout> get recent => workouts.take(5).toList();
-
-  List<Workout> get weekly {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
-
-    return workouts.where((workout) {
-      return !workout.date.isBefore(startOfWeek) &&
-          workout.date.isBefore(endOfWeek);
-    }).toList();
-  }
-
-  int get weeklyMinutes {
-    return weekly.fold<int>(
-      0,
-      (total, workout) => total + workout.duration,
-    );
-  }
-
-  double get goalPercent {
-    if (weekly.isEmpty) {
-      return 0;
-    }
-
-    return ((weekly.length / 5) * 100).clamp(0.0, 100.0);
   }
 }
 
