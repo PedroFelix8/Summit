@@ -99,15 +99,7 @@ class _HomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final horizontalPadding =
         MediaQuery.sizeOf(context).width > 640 ? 32.0 : 20.0;
-    final recentWorkouts = workouts.take(5).toList();
-    final weeklyWorkouts = workouts.where(_isCurrentWeek).toList();
-    final weeklyMinutes = weeklyWorkouts.fold<int>(
-      0,
-      (total, workout) => total + workout.duration,
-    );
-    final goalPercent = weeklyWorkouts.isEmpty
-        ? 0.0
-        : ((weeklyWorkouts.length / 5) * 100).clamp(0.0, 100.0);
+    final dashboard = WorkoutDashboard(workouts);
 
     return SingleChildScrollView(
       child: Center(
@@ -119,10 +111,10 @@ class _HomeContent extends StatelessWidget {
               HomeHeroHeader(
                 userName: 'Alex',
                 weekLabel: 'This week',
-                workoutsCount: weeklyWorkouts.length.toString(),
+                workoutsCount: dashboard.weekly.length.toString(),
                 totalKm: '0.0',
-                totalTime: _formatDuration(weeklyMinutes),
-                weekGoalPercent: goalPercent,
+                totalTime: _formatDuration(dashboard.weeklyMinutes),
+                weekGoalPercent: dashboard.goalPercent,
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -144,12 +136,12 @@ class _HomeContent extends StatelessWidget {
                     ),
                     QuickStat(
                       icon: Icons.timer_outlined,
-                      value: _formatDuration(weeklyMinutes),
+                      value: _formatDuration(dashboard.weeklyMinutes),
                       label: 'time',
                     ),
                     QuickStat(
                       icon: Icons.local_fire_department_outlined,
-                      value: weeklyWorkouts.length.toString(),
+                      value: dashboard.weekly.length.toString(),
                       label: 'week',
                     ),
                   ],
@@ -175,7 +167,7 @@ class _HomeContent extends StatelessWidget {
                   24,
                 ),
                 child: _WorkoutSection(
-                  workouts: recentWorkouts,
+                  workouts: dashboard.recent,
                   isLoading: isLoading,
                   hasError: hasError,
                   onEditWorkout: onEditWorkout,
@@ -188,15 +180,6 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  static bool _isCurrentWeek(Workout workout) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
-    return !workout.date.isBefore(startOfWeek) &&
-        workout.date.isBefore(endOfWeek);
-  }
-
   static String _formatDuration(int minutes) {
     if (minutes < 60) {
       return '${minutes}m';
@@ -207,6 +190,41 @@ class _HomeContent extends StatelessWidget {
     return remainingMinutes == 0
         ? '${hours}h'
         : '${hours}h ${remainingMinutes}m';
+  }
+}
+
+class WorkoutDashboard {
+  const WorkoutDashboard(this.workouts);
+
+  final List<Workout> workouts;
+
+  List<Workout> get recent => workouts.take(5).toList();
+
+  List<Workout> get weekly {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+    return workouts.where((workout) {
+      return !workout.date.isBefore(startOfWeek) &&
+          workout.date.isBefore(endOfWeek);
+    }).toList();
+  }
+
+  int get weeklyMinutes {
+    return weekly.fold<int>(
+      0,
+      (total, workout) => total + workout.duration,
+    );
+  }
+
+  double get goalPercent {
+    if (weekly.isEmpty) {
+      return 0;
+    }
+
+    return ((weekly.length / 5) * 100).clamp(0.0, 100.0);
   }
 }
 
