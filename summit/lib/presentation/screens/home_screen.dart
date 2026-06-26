@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/core/theme/app_text_styles.dart';
 import 'package:summit/data/local/database/app_database.dart';
+import 'package:summit/data/local/database/database_provider.dart';
 import 'package:summit/data/repositories/workout_repository.dart';
 import 'package:summit/presentation/screens/add_workout/add_workout_screen.dart';
 import 'package:summit/presentation/screens/edit_workout/edit_workout_screen.dart';
@@ -27,15 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _database = AppDatabase();
+    _database = DatabaseProvider.instance;
     _workoutRepository = WorkoutRepository(_database);
     _workoutsFuture = _workoutRepository.getWorkouts();
-  }
-
-  @override
-  void dispose() {
-    _database.close();
-    super.dispose();
   }
 
   @override
@@ -64,20 +59,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openAddWorkout() async {
-    final changed = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => AddWorkoutScreen(repository: _workoutRepository),
       ),
     );
 
-    if (changed == true) {
+    if (mounted) {
       _reloadWorkouts();
     }
   }
 
   Future<void> _openEditWorkout(Workout workout) async {
-    final changed = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => EditWorkoutScreen(
@@ -87,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    if (changed == true) {
+    if (mounted) {
       _reloadWorkouts();
     }
   }
