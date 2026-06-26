@@ -15,6 +15,14 @@ class WorkoutRepository {
         .get();
   }
 
+  Stream<List<Workout>> watchWorkouts() {
+    return (_database.select(_database.workouts)
+          ..orderBy([
+            (table) => OrderingTerm.desc(table.date),
+          ]))
+        .watch();
+  }
+
   Future<List<Workout>> getWorkoutsByUser(int userId) {
     return (_database.select(_database.workouts)
           ..where((table) => table.userId.equals(userId))

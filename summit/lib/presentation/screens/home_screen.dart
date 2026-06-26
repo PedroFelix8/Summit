@@ -23,14 +23,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final AppDatabase _database;
   late final WorkoutRepository _workoutRepository;
-  late Future<List<Workout>> _workoutsFuture;
+  late final Stream<List<Workout>> _workoutsStream;
 
   @override
   void initState() {
     super.initState();
     _database = DatabaseProvider.instance;
     _workoutRepository = WorkoutRepository(_database);
-    _workoutsFuture = _workoutRepository.getWorkouts();
+    _workoutsStream = _workoutRepository.watchWorkouts();
   }
 
   @override
@@ -38,8 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: FutureBuilder<List<Workout>>(
-          future: _workoutsFuture,
+        child: StreamBuilder<List<Workout>>(
+          stream: _workoutsStream,
           builder: (context, snapshot) {
             final workouts = snapshot.data ?? const <Workout>[];
             final isLoading =
@@ -65,10 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => AddWorkoutScreen(repository: _workoutRepository),
       ),
     );
-
-    if (mounted) {
-      _reloadWorkouts();
-    }
   }
 
   Future<void> _openEditWorkout(Workout workout) async {
@@ -81,16 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-
-    if (mounted) {
-      _reloadWorkouts();
-    }
-  }
-
-  void _reloadWorkouts() {
-    setState(() {
-      _workoutsFuture = _workoutRepository.getWorkouts();
-    });
   }
 }
 
