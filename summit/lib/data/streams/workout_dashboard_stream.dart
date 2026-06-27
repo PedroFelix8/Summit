@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:summit/data/local/database/app_database.dart';
+import 'package:summit/domain/services/workout_analytics_service.dart';
 
 class WorkoutDashboard {
   const WorkoutDashboard({
@@ -10,29 +11,6 @@ class WorkoutDashboard {
     required this.weeklyMinutes,
     required this.goalPercent,
   });
-
-  factory WorkoutDashboard.fromWorkouts(List<Workout> workouts) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 7));
-    final weekly = workouts.where((workout) {
-      return !workout.date.isBefore(startOfWeek) &&
-          workout.date.isBefore(endOfWeek);
-    }).toList();
-    final weeklyMinutes = weekly.fold<int>(
-      0,
-      (total, workout) => total + workout.duration,
-    );
-
-    return WorkoutDashboard(
-      workouts: workouts,
-      recent: workouts.take(5).toList(),
-      weekly: weekly,
-      weeklyMinutes: weeklyMinutes,
-      goalPercent: ((weekly.length / 5) * 100).clamp(0.0, 100.0),
-    );
-  }
 
   factory WorkoutDashboard.empty() {
     return const WorkoutDashboard(
@@ -52,9 +30,13 @@ class WorkoutDashboard {
 }
 
 class WorkoutDashboardStream {
-  const WorkoutDashboardStream(this._database);
+  const WorkoutDashboardStream(
+    this._database, {
+    WorkoutAnalyticsService analytics = const WorkoutAnalyticsService(),
+  }) : _analytics = analytics;
 
   final AppDatabase _database;
+  final WorkoutAnalyticsService _analytics;
 
   Stream<WorkoutDashboard> watch() {
     return (_database.select(_database.workouts)
@@ -62,6 +44,6 @@ class WorkoutDashboardStream {
             (table) => OrderingTerm.desc(table.date),
           ]))
         .watch()
-        .map(WorkoutDashboard.fromWorkouts);
+        .map(_analytics.buildDashboard);
   }
 }
