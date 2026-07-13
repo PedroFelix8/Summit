@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:summit/core/dependencies/workout_dependencies.dart';
 import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/core/theme/app_text_styles.dart';
 import 'package:summit/data/local/database/app_database.dart';
-import 'package:summit/data/local/database/database_provider.dart';
-import 'package:summit/data/repositories/workout_repository.dart';
-import 'package:summit/data/streams/workout_dashboard_stream.dart';
+import 'package:summit/domain/entities/workout_dashboard.dart';
 import 'package:summit/presentation/screens/add_workout/add_workout_screen.dart';
 import 'package:summit/presentation/screens/edit_workout/edit_workout_screen.dart';
 import 'package:summit/shared/widgets/gradient_card.dart';
@@ -22,16 +21,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final AppDatabase _database;
-  late final WorkoutRepository _workoutRepository;
   late final Stream<WorkoutDashboard> _dashboardStream;
 
   @override
   void initState() {
     super.initState();
-    _database = DatabaseProvider.instance;
-    _workoutRepository = WorkoutRepository(_database);
-    _dashboardStream = WorkoutDashboardStream(_database).watch();
+    _dashboardStream = WorkoutDependencies.watchWorkoutDashboard();
   }
 
   @override
@@ -63,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => AddWorkoutScreen(repository: _workoutRepository),
+        builder: (context) => AddWorkoutScreen(
+          repository: WorkoutDependencies.workoutRepository,
+        ),
       ),
     );
   }
@@ -73,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => EditWorkoutScreen(
-          repository: _workoutRepository,
+          repository: WorkoutDependencies.workoutRepository,
           workout: workout,
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:summit/data/local/database/app_database.dart';
-import 'package:summit/data/streams/workout_dashboard_stream.dart';
+import 'package:summit/domain/entities/workout_dashboard.dart';
 
 class WorkoutAnalyticsService {
   const WorkoutAnalyticsService();
