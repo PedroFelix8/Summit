@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 
 import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/data/local/database/app_database.dart';
-import 'package:summit/data/repositories/workout_repository.dart';
+import 'package:summit/domain/usecases/add_workout.dart';
 import 'package:summit/presentation/screens/workout_form/workout_form.dart';
 
 class AddWorkoutScreen extends StatefulWidget {
   const AddWorkoutScreen({
     super.key,
-    required this.repository,
+    required this.addWorkout,
   });
 
-  final WorkoutRepository repository;
+  final AddWorkout addWorkout;
 
   @override
   State<AddWorkoutScreen> createState() => _AddWorkoutScreenState();
@@ -40,7 +40,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   Future<void> _saveWorkout(WorkoutFormValue value) async {
     setState(() => _isSaving = true);
 
-    await widget.repository.insertWorkout(
+    await widget.addWorkout(
       WorkoutsCompanion.insert(
         userId: 1,
         date: value.date,

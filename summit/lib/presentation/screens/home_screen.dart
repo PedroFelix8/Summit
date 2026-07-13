@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => AddWorkoutScreen(
-          repository: WorkoutDependencies.workoutRepository,
+          addWorkout: WorkoutDependencies.addWorkout,
         ),
       ),
     );
@@ -70,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => EditWorkoutScreen(
-          repository: WorkoutDependencies.workoutRepository,
+          updateWorkout: WorkoutDependencies.updateWorkout,
+          deleteWorkout: WorkoutDependencies.deleteWorkout,
           workout: workout,
         ),
       ),

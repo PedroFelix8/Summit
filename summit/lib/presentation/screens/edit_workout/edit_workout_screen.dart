@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 
 import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/data/local/database/app_database.dart';
-import 'package:summit/data/repositories/workout_repository.dart';
+import 'package:summit/domain/usecases/delete_workout.dart';
+import 'package:summit/domain/usecases/update_workout.dart';
 import 'package:summit/presentation/screens/workout_form/workout_form.dart';
 
 class EditWorkoutScreen extends StatefulWidget {
   const EditWorkoutScreen({
     super.key,
-    required this.repository,
+    required this.updateWorkout,
+    required this.deleteWorkout,
     required this.workout,
   });
 
-  final WorkoutRepository repository;
+  final UpdateWorkout updateWorkout;
+  final DeleteWorkout deleteWorkout;
   final Workout workout;
 
   @override
@@ -58,7 +61,7 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
       notes: Value(value.notes),
     );
 
-    await widget.repository.updateWorkout(updatedWorkout);
+    await widget.updateWorkout(updatedWorkout);
 
     if (mounted) {
       Navigator.pop(context, true);
@@ -91,7 +94,7 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
     }
 
     setState(() => _isSaving = true);
-    await widget.repository.deleteWorkout(widget.workout.id);
+    await widget.deleteWorkout(widget.workout.id);
 
     if (mounted) {
       Navigator.pop(context, true);
