@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:summit/core/dependencies/workout_dependencies.dart';
@@ -6,6 +7,7 @@ import 'package:summit/core/theme/app_colors.dart';
 import 'package:summit/core/theme/app_text_styles.dart';
 import 'package:summit/data/local/database/app_database.dart';
 import 'package:summit/domain/entities/workout_dashboard.dart';
+import 'package:summit/presentation/providers/workout_dashboard_provider.dart';
 import 'package:summit/presentation/screens/add_workout/add_workout_screen.dart';
 import 'package:summit/presentation/screens/edit_workout/edit_workout_screen.dart';
 import 'package:summit/shared/widgets/gradient_card.dart';
@@ -13,48 +15,30 @@ import 'package:summit/shared/widgets/home_hero_header.dart';
 import 'package:summit/shared/widgets/quick_stat_card.dart';
 import 'package:summit/shared/widgets/workout_list_item.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardAsync = ref.watch(workoutDashboardProvider);
+    final dashboard = dashboardAsync.value ?? WorkoutDashboard.empty();
+    final isLoading = dashboardAsync.isLoading;
 
-class _HomeScreenState extends State<HomeScreen> {
-  late final Stream<WorkoutDashboard> _dashboardStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _dashboardStream = WorkoutDependencies.watchWorkoutDashboard();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: StreamBuilder<WorkoutDashboard>(
-          stream: _dashboardStream,
-          builder: (context, snapshot) {
-            final dashboard = snapshot.data ?? WorkoutDashboard.empty();
-            final isLoading =
-                snapshot.connectionState == ConnectionState.waiting;
-
-            return _HomeContent(
-              dashboard: dashboard,
-              isLoading: isLoading,
-              hasError: snapshot.hasError,
-              onAddWorkout: _openAddWorkout,
-              onEditWorkout: _openEditWorkout,
-            );
-          },
+        child: _HomeContent(
+          dashboard: dashboard,
+          isLoading: isLoading,
+          hasError: dashboardAsync.hasError,
+          onAddWorkout: () => _openAddWorkout(context),
+          onEditWorkout: (workout) => _openEditWorkout(context, workout),
         ),
       ),
     );
   }
 
-  Future<void> _openAddWorkout() async {
+  Future<void> _openAddWorkout(BuildContext context) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -65,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _openEditWorkout(Workout workout) async {
+  Future<void> _openEditWorkout(BuildContext context, Workout workout) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
